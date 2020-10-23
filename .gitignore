@@ -1,1 +1,5 @@
-token.txt
+app/token.py
+**/.idea
+**/__pycache__
+db
+**/*.save

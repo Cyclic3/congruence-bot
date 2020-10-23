@@ -1,10 +1,15 @@
 from typing import List
 
 import discord
-from discord.ext import commands
 import asyncio
+from .token import tok
+from .client import client
 
-client = commands.Bot(command_prefix='!')
+from .admin import AdminCommands
+from .open import OpenCommands
+
+client.add_cog(AdminCommands())
+client.add_cog(OpenCommands())
 
 
 def gen_name(base: str, idx: int):
@@ -50,20 +55,21 @@ async def poll_channel(channels: List[discord.VoiceChannel], base: str):
 
 channels = {"768927496196194354": "voice-chat-"}
 
+
 @client.event
 async def on_voice_state_update(*args, **kwargs):  # It's easier to just check the whole thing
     print("Triggered")
-    for channel_id,template in channels.items():
+    for channel_id, template in channels.items():
         try:
             target: discord.CategoryChannel = await client.fetch_channel(channel_id)
             await poll_channel(target.channels, template)
-        except Exception as e: print(e)
+        except Exception as e:
+            print(e)
+
 
 @client.command()
 async def ping(ctx):
-  await ctx.send("pong")
-
-with open("token.txt") as file:
-  tok = file.readline().strip('\r\n')
+    await ctx.send("pong")
 
 client.run(tok)
+
