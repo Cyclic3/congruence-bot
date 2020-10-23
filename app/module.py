@@ -64,8 +64,8 @@ async def get_module_student_role(ctx: commands.Context, module: str) -> discord
 
 
 async def add_student(ctx: commands.Context, member: discord.Member, module: str):
-    await member.add_roles(get_module_student_role(ctx, module))
+    await member.add_roles(await get_module_student_role(ctx, module))
 
 
 async def remove_student(ctx: commands.Context, member: discord.Member, module: str):
-    await member.remove_roles(get_module_student_role(ctx, module))
+    await member.remove_roles(await get_module_student_role(ctx, module))

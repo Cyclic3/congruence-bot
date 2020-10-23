@@ -33,18 +33,18 @@ async def poll_channel(channels: List[discord.VoiceChannel], base: str):
 
         # If the final channel is empty, then we need to create a new one
         if is_empty and not is_last:
-            todo.append(i.delete(reason="Scaley: Empty"))
+            todo.append(i.delete())
             print(f"deleting empty channel {i.name}")
             continue
 
         # Fix the name
         if i.name != expected_name:
-            todo.append(i.edit(reason="Scaley: Filling names", name=expected_name))
+            todo.append(i.edit(name=expected_name))
             print(f"renaming channel {i.name} to {expected_name}")
 
         # Delete if empty (and not the last!)
         if not is_empty and is_last:
-            todo.append(i.clone(name=gen_name(base, current_idx + 1), reason="Scaley: All full"))
+            todo.append(i.clone(name=gen_name(base, current_idx + 1)))
             print(f"cloning final channel {i.name}")
 
         current_idx += 1
@@ -55,19 +55,29 @@ async def poll_channel(channels: List[discord.VoiceChannel], base: str):
 
 
 @client.event
-async def on_voice_state_update(*args, **kwargs):  # It's easier to just check the whole thing
-    print("Triggered")
-    for channel_id, template in db.get_scale_targets().items():
+async def on_voice_state_update(member, before, after):  # It's easier to just check the whole thing
+    all_targets = db.get_scale_targets()
+
+    # A dict enforces uniqueness
+    affected_targets = {}
+
+    for i in [before, after]:
+        if i.channel is None:
+            continue
+        category = i.channel.category
+        template = all_targets.get(category.id)
+        if template is not None:
+            affected_targets[category] = template
+
+    coros = []
+
+    for channel, template in affected_targets.items():
         try:
-            target: discord.CategoryChannel = await client.fetch_channel(channel_id)
-            await poll_channel(target.voice_channels, template)
+            coros.append(poll_channel(channel.voice_channels, template))
         except Exception as e:
             print(e)
 
-
-@client.command()
-async def ping(ctx):
-    await ctx.send("pong")
+    await asyncio.wait(coros)
 
 client.run(tok)
 
