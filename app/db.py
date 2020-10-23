@@ -1,5 +1,5 @@
 import sqlite3
-from typing import NamedTuple
+from typing import NamedTuple, Dict
 
 
 class ModuleState(NamedTuple):
@@ -59,13 +59,19 @@ class Database:
         c.execute("INSERT INTO scale_targets(id, template) VALUES (?, ?)", (channel_id, template))
         self.conn.commit()
 
-    def get_scale_targets(self, channel_id: str):
+    def get_scale_targets(self) -> Dict[int, str]:
         c = self.conn.cursor()
-        c.execute("SELECT name FROM scale_targets")
-        return [i[0] for i in c.fetchall()]
+        c.execute("SELECT id, template FROM scale_targets")
+        return {int(i[0]): i[1] for i in c.fetchall()}
+
+    def remove_scale_target(self, name: str):
+        c = self.conn.cursor()
+        c.execute("DELETE FROM scale_targets WHERE id=?", (name, ))
+        self.conn.commit()
 
     def __init__(self):
         self.conn = sqlite3.connect("db")
         self.create_tables()
+
 
 db = Database()

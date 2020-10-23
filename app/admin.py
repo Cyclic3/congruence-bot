@@ -1,13 +1,12 @@
 import discord
 from discord.ext import commands
-from . import module
+from . import module, client
 from .db import db
 
 
 class AdminCommands(commands.Cog, name="Course Rep only commands"):
     async def cog_check(self, ctx):
-        role = discord.utils.get(ctx.guild.roles, name="Course Reps")
-        return role in ctx.author.roles
+        return ctx.guild.get_role(client.course_reps_role_id) in ctx.author.roles
 
     @commands.command(help="Deletes a module")
     async def delete_module(self, ctx: commands.Context, name: str):

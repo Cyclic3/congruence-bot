@@ -4,6 +4,7 @@ import discord
 import asyncio
 from .token import tok
 from .client import client
+from .db import db
 
 from .admin import AdminCommands
 from .open import OpenCommands
@@ -53,16 +54,13 @@ async def poll_channel(channels: List[discord.VoiceChannel], base: str):
         await asyncio.wait(todo)
 
 
-channels = {"768927496196194354": "voice-chat-"}
-
-
 @client.event
 async def on_voice_state_update(*args, **kwargs):  # It's easier to just check the whole thing
     print("Triggered")
-    for channel_id, template in channels.items():
+    for channel_id, template in db.get_scale_targets().items():
         try:
             target: discord.CategoryChannel = await client.fetch_channel(channel_id)
-            await poll_channel(target.channels, template)
+            await poll_channel(target.voice_channels, template)
         except Exception as e:
             print(e)
 
