@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 from . import module
 import asyncio
-import requests
 import urllib.parse
 
 
@@ -17,7 +16,8 @@ class OpenCommands(commands.Cog, name="Commands anyone can use"):
 
     @commands.command(help="Renders a LaTeX equation")
     async def maths(self, ctx, *args):
-        latex = urllib.parse.quote(' '.join(args))
+        # leading space stops it messing with escapes
+        latex = urllib.parse.quote(' ' + ' '.join(args))
         await ctx.send(f'https://latex.codecogs.com/gif.latex?\\dpi{{200}}\\bg_white{latex}')
 
 

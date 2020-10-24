@@ -56,6 +56,7 @@ async def poll_channel(channels: List[discord.VoiceChannel], base: str):
 
 @client.event
 async def on_voice_state_update(member, before, after):  # It's easier to just check the whole thing
+    await client.change_presence(activity=discord.Game(name="Ke2"))
     all_targets = db.get_scale_targets()
 
     # A dict enforces uniqueness
@@ -78,6 +79,7 @@ async def on_voice_state_update(member, before, after):  # It's easier to just c
             print(e)
 
     await asyncio.wait(coros)
+
 
 client.run(tok)
 
